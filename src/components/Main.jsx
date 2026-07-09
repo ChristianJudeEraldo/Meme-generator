@@ -1,5 +1,6 @@
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { toPng } from "html-to-image"
 
 export default function Main() {
     const [meme, setMeme] = useState({
@@ -9,6 +10,7 @@ export default function Main() {
     })
 
     const [allMemes, setAllMemes] = useState([])
+    const memeRef = useRef(null)
 
     useEffect(() => {
         fetch("https://api.imgflip.com/get_memes")
@@ -33,35 +35,59 @@ export default function Main() {
         }))
     }
 
+    function saveMeme() {
+        if (!memeRef.current) return
+        toPng(memeRef.current, { cacheBust: true })
+            .then((dataUrl) => {
+                const link = document.createElement("a")
+                link.download = "meme.png"
+                link.href = dataUrl
+                link.click()
+            })
+            .catch((err) => {
+                console.error("Failed to save meme:", err)
+            })
+    }
+
     return (
         <main>
             <div className="form">
-                <label>Top Text
+                <div className="form--field">
+                    <label className="form--label" htmlFor="topText">Top Text</label>
                     <input
+                        id="topText"
                         type="text"
                         placeholder="One does not simply"
                         name="topText"
                         value={meme.topText}
                         onChange={handleChange}
                     />
-                </label>
+                </div>
 
-                <label>Bottom Text
+                <div className="form--field">
+                    <label className="form--label" htmlFor="bottomText">Bottom Text</label>
                     <input
+                        id="bottomText"
                         type="text"
                         placeholder="Walk into Mordor"
                         name="bottomText"
                         value={meme.bottomText}
                         onChange={handleChange}
                     />
-                </label>
-                <button onClick={getMemeImage}>Get a new meme image 🖼</button>
+                </div>
+                <button className="btn-primary" onClick={getMemeImage}>get new image →</button>
             </div>
-            <div className="meme">
-                <img src={meme.imageUrl} />
-                <span className="top">{meme.topText}</span>
-                <span className="bottom">{meme.bottomText}</span>
+            <span className="micro-label section-label">PREVIEW</span>
+            <div className="meme-card">
+                <div className="meme" ref={memeRef}>
+                    <img src={meme.imageUrl} alt="Meme" />
+                    <span className="top">{meme.topText}</span>
+                    <span className="bottom">{meme.bottomText}</span>
+                </div>
             </div>
+            <button className="save-btn" onClick={saveMeme}>
+                save as png ↓
+            </button>
         </main>
     )
 }
