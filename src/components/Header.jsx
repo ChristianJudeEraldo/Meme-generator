@@ -1,12 +1,8 @@
 
 import trollFace from "../images/troll-face.png"
 
-export default function Header() {
-    function toggleTheme() {
-        document.documentElement.classList.toggle("dark")
-        const isDark = document.documentElement.classList.contains("dark")
-        localStorage.setItem("theme", isDark ? "dark" : "light")
-    }
+export default function Header({ themePreference, resolvedTheme, onToggleTheme }) {
+    const themeLabel = themePreference === "system" ? `system · ${resolvedTheme}` : themePreference
 
     return (
         <header className="header">
@@ -14,15 +10,18 @@ export default function Header() {
                 <img src={trollFace} alt="Troll face logo" />
                 <div className="header--text">
                     <span className="micro-label">GENERATOR</span>
-                    <h1>Meme Generator</h1>
+                    <h1>meme generator</h1>
                 </div>
             </div>
             <button
                 className="theme-toggle"
-                onClick={toggleTheme}
-                aria-label="Toggle dark mode"
+                onClick={onToggleTheme}
+                aria-label={`Theme preference is ${themeLabel}`}
+                title="Cycle theme preference"
+                type="button"
             >
-                ☀/☾
+                <span className="theme-toggle__label">theme</span>
+                <span className="theme-toggle__value">{themeLabel}</span>
             </button>
         </header>
     )

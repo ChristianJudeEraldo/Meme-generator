@@ -12,6 +12,11 @@
     padding: 0;
 }
 
+html {
+    min-height: 100%;
+    background: var(--bg);
+}
+
 /* --- Design Tokens --- */
 :root {
     color-scheme: light dark;
@@ -24,9 +29,16 @@
     --gray-300: #d4d4d4;
     --gray-400: #a3a3a3;
     --gray-500: #737373;
+    --surface: var(--gray-50);
+    --surface-strong: var(--bg);
+    --border: var(--gray-200);
+    --muted: var(--gray-500);
+    --label: var(--gray-400);
 
     --font-body: "Geist", system-ui, -apple-system, sans-serif;
     --font-mono: "Geist Mono", ui-monospace, "Cascadia Code", monospace;
+    --font-display: "Geist Pixel", "Geist Mono", ui-monospace, monospace;
+    --font-serif: "Source Serif 4", Georgia, serif;
 
     --radius-lg: 16px;
     --radius-md: 12px;
@@ -39,12 +51,12 @@
     --transition-card: 350ms;
 
     --halftone-alpha: 0.07;
-    --shadow-card: 0 8px 22px -14px rgba(0, 0, 0, 0.25);
-    --shadow-card-hover: 0 18px 36px -20px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 8px 22px -14px rgba(0, 0, 0, 0.24);
+    --shadow-card-hover: 0 18px 36px -20px rgba(0, 0, 0, 0.36);
+    --card-fill: linear-gradient(180deg, rgba(250, 250, 250, 0.96), rgba(255, 255, 255, 0.99));
 }
 
-/* Dark theme via class */
-:root.dark {
+html[data-theme="dark"] {
     --bg: #0c0c0f;
     --ink: #f4f4f5;
     --gray-50: #18181b;
@@ -53,42 +65,42 @@
     --gray-300: #3a3a42;
     --gray-400: #8a8a92;
     --gray-500: #a0a0a8;
+    --surface: var(--gray-50);
+    --surface-strong: var(--gray-100);
+    --border: var(--gray-200);
+    --muted: var(--gray-500);
+    --label: var(--gray-400);
 
     --halftone-alpha: 0.04;
-    --shadow-card: 0 4px 12px -6px rgba(0, 0, 0, 0.5);
-    --shadow-card-hover: 0 8px 20px -10px rgba(0, 0, 0, 0.6);
-}
-
-/* Dark theme via system preference (when no class is set) */
-@media (prefers-color-scheme: dark) {
-    :root:not(.light) {
-        --bg: #0c0c0f;
-        --ink: #f4f4f5;
-        --gray-50: #18181b;
-        --gray-100: #1e1e22;
-        --gray-200: #2a2a30;
-        --gray-300: #3a3a42;
-        --gray-400: #8a8a92;
-        --gray-500: #a0a0a8;
-
-        --halftone-alpha: 0.04;
-        --shadow-card: 0 4px 12px -6px rgba(0, 0, 0, 0.5);
-        --shadow-card-hover: 0 8px 20px -10px rgba(0, 0, 0, 0.6);
-    }
+    --shadow-card: 0 4px 12px -6px rgba(0, 0, 0, 0.52);
+    --shadow-card-hover: 0 8px 20px -10px rgba(0, 0, 0, 0.62);
+    --card-fill: linear-gradient(180deg, rgba(24, 24, 27, 0.98), rgba(12, 12, 15, 0.98));
 }
 
 /* --- Global --- */
+html,
+body,
+#root {
+    min-height: 100%;
+}
+
 body {
     font-family: var(--font-body);
     font-size: 15px;
     line-height: 1.5;
     color: var(--ink);
     background-color: var(--bg);
+    background-image:
+        radial-gradient(circle at 18% 18%, rgba(0, 0, 0, 0.03), transparent 32%),
+        radial-gradient(circle at 82% 0%, rgba(0, 0, 0, 0.04), transparent 22%);
     transition:
         background-color 500ms ease,
         color 500ms ease;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    position: relative;
+    isolation: isolate;
 }
 
 /* Halftone dot texture — subtle page background */
@@ -123,6 +135,21 @@ body::before {
 ::selection {
     background-color: var(--ink);
     color: var(--bg);
+}
+
+a {
+    color: inherit;
+    text-decoration-color: color-mix(in srgb, currentColor 25%, transparent);
+    text-underline-offset: 0.18em;
+}
+
+a:hover {
+    text-decoration-color: currentColor;
+}
+
+button,
+input {
+    font: inherit;
 }
 
 /* --- Scrollbar --- */
@@ -171,7 +198,7 @@ body::before {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    color: var(--gray-400);
+    color: var(--label);
     line-height: 1.4;
 }
 
@@ -180,10 +207,11 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 520px;
+    gap: 1rem;
+    max-width: 42rem;
     margin: 0 auto;
     padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--border);
     transition: border-color 500ms ease;
 }
 
@@ -200,7 +228,7 @@ body::before {
 }
 
 /* Invert the troll face in dark mode so it stays visible */
-:root.dark .header--brand > img {
+html[data-theme="dark"] .header--brand > img {
     filter: invert(1) grayscale(1);
 }
 
@@ -216,10 +244,10 @@ body::before {
 }
 
 .header h1 {
-    font-family: var(--font-body);
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 2vw, 2.8rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
     line-height: 1.1;
     text-transform: lowercase;
     color: var(--ink);
@@ -227,30 +255,46 @@ body::before {
 
 /* Theme toggle */
 .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: nowrap;
     font-family: var(--font-mono);
-    font-size: 14px;
-    color: var(--gray-500);
-    background: none;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-xs);
-    padding: 4px 10px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 0.55rem 0.85rem;
     cursor: pointer;
     transition:
         color var(--transition-fast) ease,
         border-color var(--transition-fast) ease,
-        background-color var(--transition-fast) ease;
+        background-color var(--transition-fast) ease,
+        transform var(--transition-fast) ease;
     line-height: 1;
 }
 
 .theme-toggle:hover {
     color: var(--ink);
     border-color: var(--gray-300);
-    background-color: var(--gray-50);
+    background-color: var(--surface-strong);
+    transform: translateY(-1px);
+}
+
+.theme-toggle__label {
+    color: var(--label);
+}
+
+.theme-toggle__value {
+    color: var(--ink);
 }
 
 /* --- Main Content --- */
 main {
-    max-width: 520px;
+    max-width: 42rem;
     margin: 0 auto;
     padding: 2.5rem 1.5rem 3rem;
 }
@@ -275,7 +319,7 @@ main {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: var(--gray-500);
+    color: var(--muted);
 }
 
 .form input {
@@ -285,22 +329,32 @@ main {
     font-family: var(--font-mono);
     font-size: 13px;
     color: var(--ink);
-    background-color: var(--gray-50);
-    border: 1px solid var(--gray-200);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius-xs);
     outline: none;
     transition:
         border-color var(--transition-fast) ease,
-        background-color var(--transition-fast) ease;
+        background-color var(--transition-fast) ease,
+        box-shadow var(--transition-fast) ease;
 }
 
 .form input::placeholder {
-    color: var(--gray-400);
+    color: var(--label);
 }
 
 .form input:focus {
-    border-color: var(--gray-400);
-    background-color: var(--bg);
+    border-color: var(--gray-300);
+    background-color: var(--surface-strong);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.form input:focus-visible,
+.theme-toggle:focus-visible,
+.btn-primary:focus-visible,
+.save-btn:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--ink) 35%, transparent);
+    outline-offset: 2px;
 }
 
 /* Primary button (ink fill) */
@@ -319,7 +373,8 @@ main {
     cursor: pointer;
     transition:
         opacity var(--transition-fast) ease,
-        transform var(--transition-fast) ease;
+        transform var(--transition-fast) ease,
+        background-color var(--transition-fast) ease;
 }
 
 .btn-primary:hover {
@@ -339,9 +394,9 @@ main {
 
 /* --- Meme Card --- */
 .meme-card {
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    background-color: var(--gray-50);
+    background: var(--card-fill);
     box-shadow: var(--shadow-card);
     overflow: hidden;
     transition:
@@ -371,11 +426,12 @@ main {
     max-width: 100%;
     width: 100%;
     height: auto;
+    object-fit: cover;
     transition: transform 420ms var(--ease-out);
 }
 
 .meme-card:hover .meme > img {
-    transform: scale(1.02);
+    transform: scale(1.04);
 }
 
 /* Meme text overlays (keep meme convention: Impact + stroke) */
@@ -425,7 +481,7 @@ main {
     letter-spacing: 0.5px;
     color: var(--ink);
     background-color: transparent;
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition:
@@ -435,13 +491,13 @@ main {
 }
 
 .save-btn:hover {
-    background-color: var(--gray-100);
+    background-color: var(--surface);
     border-color: var(--gray-300);
     transform: translateY(-1px);
 }
 
 .save-btn:active {
-    background-color: var(--gray-50);
+    background-color: var(--surface-strong);
     transform: translateY(0);
 }
 
@@ -453,6 +509,7 @@ main {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }
 
@@ -464,6 +521,11 @@ main {
 
     .header h1 {
         font-size: 1.3rem;
+    }
+
+    .theme-toggle {
+        gap: 0.45rem;
+        padding-inline: 0.7rem;
     }
 
     .meme span {
